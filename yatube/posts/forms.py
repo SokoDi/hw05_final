@@ -23,12 +23,13 @@ class PostForm(forms.ModelForm):
             'group': 'Из уже существующих'
         }
 
+
 class CommentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['text'].widget.attrs['placeholder'] = (
             'Критику!')
-        
+
     class Meta:
         model = Comment
         fields = ['text']

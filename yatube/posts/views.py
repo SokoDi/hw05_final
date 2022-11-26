@@ -46,10 +46,14 @@ def profile(request, username):
     author = get_object_or_404(User, username=username)
     post = author.posts.all()
     page_obj = split_by_page(request, post)
-
+    if request.user.is_authenticated:
+        following = author.following.filter(user=request.user).exists()
+    else:
+        following = None
     context = {
         'author': author,
         'page_obj': page_obj,
+        'following': following,
     }
     return render(request, 'posts/profile.html', context)
 
@@ -69,7 +73,10 @@ def post_create(request):
 def post_edit(request, post_id):
     post = get_object_or_404(
         Post.objects.select_related('group', 'author'), id=post_id)
-    form = PostForm(request.POST or None, files=request.FILES or None, instance=post)
+    form = PostForm(
+        request.POST or None,
+        files=request.FILES or None,
+        instance=post)
     if post.author != request.user:
         return redirect('posts:post_detail', post.pk)
     if form.is_valid():
@@ -81,6 +88,7 @@ def post_edit(request, post_id):
         'post': post,
     }
     return render(request, 'posts/create_post.html', context)
+
 
 @login_required
 def add_comment(request, post_id):
@@ -94,6 +102,7 @@ def add_comment(request, post_id):
         comment.save()
     return redirect('posts:post_detail', post_id=post_id)
 
+
 @login_required
 def follow_index(request):
     author_posts = Post.objects.filter(author__following__user=request.user)
@@ -101,7 +110,7 @@ def follow_index(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     return render(
-        request, 'posts/follow/follow.html', {'page_obj': page_obj}
+        request, 'posts/follow.html', {'page_obj': page_obj}
     )
 
 

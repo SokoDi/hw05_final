@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model
 from django.db import models
-from core.models import CreatedModel
 
 User = get_user_model()
 
@@ -41,6 +40,7 @@ class Post(models.Model):
     def __str__(self):
         return self.text
 
+
 class Comment(models.Model):
     post = models.ForeignKey(
         Post,
@@ -54,13 +54,13 @@ class Comment(models.Model):
     )
     text = models.TextField(verbose_name='comments')
     created = models.DateTimeField(
-        auto_now_add=True, 
+        auto_now_add=True,
         verbose_name='commentes'
-        )
+    )
 
-    
     def __str__(self):
         return self.text
+
 
 class Follow(models.Model):
     user = models.ForeignKey(
