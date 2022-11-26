@@ -4,10 +4,11 @@ import tempfile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from django import forms
+from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.conf import settings
 
-from ..models import Post, Group, User
+from ..models import Post, Group, Follow, User
 
 TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
 
@@ -18,6 +19,7 @@ class PostPagesTests(TestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.user = User.objects.create(username='author')
+        cls.user1 =User.objects.create(username='not_author')
         cls.group = Group.objects.create(
             title='Тестовое название',
             slug='test-slug',
@@ -37,6 +39,10 @@ class PostPagesTests(TestCase):
             name='small.gif',
             content=small_gif,
             content_type='image/gif'
+        )
+        cls.following = Follow.objects.create(
+            author=cls.user,
+            user=cls.user1,
         )
         cls.group1 = Group.objects.create(
             title='Тестовая группа1',
@@ -60,6 +66,8 @@ class PostPagesTests(TestCase):
         self.guest_client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
+        self.authorized_client1 = Client()
+        self.authorized_client1.force_login(self.user1)
 
     def code_for_checking_post(self, post):
         self.assertEqual(post.author, self.user)
@@ -185,3 +193,12 @@ class PostPagesTests(TestCase):
         self.assertEqual(Post.objects.filter(
             group=self.group1).count(), posts_count
         )
+
+    def test_index_page_cache(self):
+        """Посты в index хранятся в кэше, обновляется раз в 20 секунд"""
+        response_1 = self.authorized_client.get(reverse('posts:index'))
+        response_2 = self.authorized_client.get(reverse('posts:index'))
+        self.assertEqual(response_1.content, response_2.content)
+        cache.clear()
+        response_3 = self.authorized_client.get(reverse('posts:index'))
+        self.assertNotEqual(response_2.content, response_3.content)
