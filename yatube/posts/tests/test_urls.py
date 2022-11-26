@@ -99,3 +99,8 @@ class PostURLTest(TestCase):
         пользователя не являющегося автором поста """
         response = self.authorized_client1.get(f'/posts/{self.post.id}/edit/')
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
+
+    def test_404(self):
+        """Cервер возвращает код 404, если страница не найдена."""
+        response = self.guest_client.get('/notfound/')
+        self.assertEqual(response.status_code, 404)

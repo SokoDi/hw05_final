@@ -26,7 +26,7 @@ CSRF_FAILURE_VIEW = 'core.views.csrf_failure'
 SECRET_KEY = 'idk+p87x%b3bmu$7$_9g+&_%()42b5nss6b0goit&u#kxsw6z7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     'localhost',

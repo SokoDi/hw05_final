@@ -2,10 +2,10 @@
 {% block title %}Записи сообщества {{ group.title }}{% endblock %}
 {% block content %}
 {% load thumbnail %}
-{% load cache %}
-{% cache 20 index_page page%}
   <h1>{{ group.title }}</h1>
   <p>{{ group.description }}</p>
+{% load cache %}
+{% cache 20 index_page page%}
   {% for post in page_obj %}
     <article>
       <ul>

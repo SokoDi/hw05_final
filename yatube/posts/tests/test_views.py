@@ -8,7 +8,7 @@ from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.conf import settings
 
-from ..models import Post, Group, Follow, User
+from ..models import Post, Group, Follow, Comment, User
 
 TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
 
@@ -19,7 +19,7 @@ class PostPagesTests(TestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.user = User.objects.create(username='author')
-        cls.user1 =User.objects.create(username='not_author')
+        cls.user1 = User.objects.create(username='not_author')
         cls.group = Group.objects.create(
             title='Тестовое название',
             slug='test-slug',
@@ -194,8 +194,29 @@ class PostPagesTests(TestCase):
             group=self.group1).count(), posts_count
         )
 
+    def test_comment_add_post(self):
+        """Проверка добавления коммента к посту."""
+        Comment.objects.count()
+        comment = {
+            'author': self.user,
+            'text': 'Тестовый коммент'
+        }
+        response = self.authorized_client.post(
+            reverse('posts:add_comment', args=(self.post.id,)),
+            data=comment,
+            follow=True
+        )
+        self.assertRedirects(response, reverse(
+            'posts:post_detail',
+            args=(self.post.id,)))
+        self.assertEqual(Comment.objects.count(), 1)
+        self.assertTrue(Comment.objects.filter(
+            text='Тестовый коммент',
+            author=self.user).exists())
+    
+
     def test_index_page_cache(self):
-        """Посты в index хранятся в кэше, обновляется раз в 20 секунд"""
+        """Посты в index хранятся в кэше, обновляются раз в 20 секунд"""
         response_1 = self.authorized_client.get(reverse('posts:index'))
         response_2 = self.authorized_client.get(reverse('posts:index'))
         self.assertEqual(response_1.content, response_2.content)
