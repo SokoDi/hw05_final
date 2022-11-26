@@ -213,7 +213,6 @@ class PostPagesTests(TestCase):
         self.assertTrue(Comment.objects.filter(
             text='Тестовый коммент',
             author=self.user).exists())
-    
 
     def test_index_page_cache(self):
         """Посты в index хранятся в кэше, обновляются раз в 20 секунд"""
