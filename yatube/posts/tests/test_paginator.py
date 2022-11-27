@@ -10,16 +10,16 @@ class PaginatorViewsTest(TestCase):
     def setUp(self):
         self.guest_client = Client()
         self.user = User.objects.create_user(username='author')
-        self.user2 = User.objects.create_user(username='not_author')
+        self.user1 = User.objects.create_user(username='not_author')
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
         self.authorized_client1 = Client()
-        self.authorized_client1.force_login(self.user2)
+        self.authorized_client1.force_login(self.user1)
         self.group = Group.objects.create(title='Тестовая группа',
                                           slug='test_group')
         self.follow = Follow.objects.create(
             author=self.user,
-            user=self.user2
+            user=self.user1
         )
         bilk_post: list = []
         for i in range(settings.TEST_OF_POST):
