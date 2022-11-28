@@ -242,5 +242,35 @@ class PostPagesTests(TestCase):
         self.guest_client.get(reverse(
             'posts:profile_follow', args=(self.user,)))
         self.assertEqual(Follow.objects.count(), 0)
-    
-    def test_
+
+    def test_follow_list(self):
+        """Пост появляется в ленте у тех, кто подписан."""
+        self.authorized_client1.get(reverse(
+            'posts:profile_follow', args=(self.user,)))
+        response1 = self.authorized_client1.get(reverse(
+            'posts:follow_index'))
+        self.assertEqual(len(response1.context['page_obj']), 1)
+        post_test = Post.objects.create(
+            text='Новый пост',
+            author=self.user,
+            group=self.group,
+        )
+        response = self.authorized_client1.get(reverse(
+            'posts:follow_index'))
+        first_object = response.context.get('page_obj')[0]
+        self.assertEqual(post_test, first_object)
+        self.assertEqual(len(response.context['page_obj']), 2)
+
+    def test_not_following_page(self):
+        """Пост отсутствует у тех, кто не подписан."""
+        response1 = self.authorized_client1.get(reverse(
+            'posts:follow_index'))
+        self.assertEqual(len(response1.context['page_obj']), 0)
+        Post.objects.create(
+            text='Новый пост',
+            author=self.user,
+            group=self.group,
+        )
+        response = self.authorized_client1.get(reverse(
+            'posts:follow_index'))
+        self.assertEqual(len(response.context['page_obj']), 0)
