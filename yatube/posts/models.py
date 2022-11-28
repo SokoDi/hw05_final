@@ -40,9 +40,6 @@ class Post(models.Model):
     def __str__(self):
         return self.text
 
-    def shortText(self):
-        return self.text[:100]
-
 
 class Comment(models.Model):
     post = models.ForeignKey(
