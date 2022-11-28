@@ -1,6 +1,5 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render, redirect, render
-from django.core.paginator import Paginator
 
 from .forms import PostForm, CommentForm
 from .models import Group, Post, Follow, User
@@ -46,7 +45,8 @@ def profile(request, username):
     author = get_object_or_404(User, username=username)
     post = author.posts.all()
     page_obj = split_by_page(request, post)
-    following = request.user.is_authenticated and author.following.filter(user=request.user).exists()
+    following = request.user.is_authenticated and author.following.filter(
+        user=request.user).exists()
     context = {
         'author': author,
         'page_obj': page_obj,

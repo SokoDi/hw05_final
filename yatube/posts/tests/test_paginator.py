@@ -29,11 +29,10 @@ class PaginatorViewsTest(TestCase):
                      author=self.user))
         Post.objects.bulk_create(bilk_post)
         self.pages: tuple = (reverse('posts:index'),
-                        reverse('posts:profile',
-                                kwargs={'username': self.user.username}),
-                        reverse('posts:group_list',
-                                kwargs={'slug': self.group.slug}))
-
+                             reverse('posts:profile',
+                                     kwargs={'username': self.user.username}),
+                             reverse('posts:group_list',
+                                     kwargs={'slug': self.group.slug}))
 
     def test_correct_page_context_guest_client(self):
         """Проверка количества постов на
@@ -64,8 +63,8 @@ class PaginatorViewsTest(TestCase):
         на первой и второй страницах подписак."""
         pages: tuple = (reverse('posts:follow_index'),
                         reverse('posts:profile',
-                                kwargs={'username': self.user.username})
-        )
+                                kwargs={'username': self.user.username}))
+
         for page in pages:
             response1 = self.authorized_client1.get(page)
             response2 = self.authorized_client1.get(page + '?page=2')
@@ -74,5 +73,3 @@ class PaginatorViewsTest(TestCase):
             self.assertEqual(count_posts1, settings.POSTS_PER_PAGE)
             self.assertEqual(
                 count_posts2, settings.TEST_OF_POST - settings.POSTS_PER_PAGE)
-
-

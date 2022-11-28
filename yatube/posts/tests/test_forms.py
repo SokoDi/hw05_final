@@ -139,7 +139,8 @@ class PostFormTests(TestCase):
             reverse('posts:add_comment', kwargs={'post_id': self.post.id}),
             data=form_comment,
             follow=True
-            )
-        self.assertEqual(comment_count, Comment.objects.count())    
+        )
+        self.assertEqual(comment_count, Comment.objects.count())
         self.assertRedirects(
-            response, f'/auth/login/?next=/posts/{self.post.id}/comment/')
+            response, f'/auth/login/?next=/posts/\
+            {self.post.id}/comment/')

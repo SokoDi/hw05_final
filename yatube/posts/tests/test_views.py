@@ -243,3 +243,4 @@ class PostPagesTests(TestCase):
             'posts:profile_follow', args=(self.user,)))
         self.assertEqual(Follow.objects.count(), 0)
     
+    def test_

@@ -16,6 +16,7 @@ class PostAdmin(admin.ModelAdmin):
     list_filter = ('pub_date',)
     empty_value_display = '-пусто-'
 
+
 class CommentAdmin(admin.ModelAdmin):
     list_display = (
         'pk',
@@ -33,4 +34,3 @@ admin.site.register(Post, PostAdmin)
 admin.site.register(Group)
 admin.site.register(Comment, CommentAdmin)
 admin.site.register(Follow)
-
