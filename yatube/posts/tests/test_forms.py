@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.conf import settings
 
-from ..models import Post, Group, User
+from ..models import Post, Group, Comment, User
 
 TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
 
@@ -40,6 +40,11 @@ class PostFormTests(TestCase):
             title='Другое название',
             slug='test2-slug',
             description='Другое описание',
+        )
+        cls.post = Post.objects.create(
+            text='Тестовый текст',
+            author=cls.user,
+            group=cls.group,
         )
 
     @classmethod
@@ -123,3 +128,18 @@ class PostFormTests(TestCase):
         self.assertEqual(Post.objects.count(), posts_count)
         self.assertRedirects(
             response, '/auth/login/?next=/create/')
+
+    def test_form_comment_guest(self):
+        """Проверяем что гость не может отправлять форму комментария"""
+        comment_count = Comment.objects.count()
+        form_comment = {
+            'text': 'Текст коментария'
+        }
+        response = self.guest_client.post(
+            reverse('posts:add_comment', kwargs={'post_id': self.post.id}),
+            data=form_comment,
+            follow=True
+            )
+        self.assertEqual(comment_count, Comment.objects.count())    
+        self.assertRedirects(
+            response, f'/auth/login/?next=/posts/{self.post.id}/comment/')

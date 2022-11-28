@@ -7,6 +7,7 @@ from django import forms
 from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.conf import settings
+from http import HTTPStatus
 
 from ..models import Post, Group, Follow, Comment, User
 
@@ -40,10 +41,7 @@ class PostPagesTests(TestCase):
             content=small_gif,
             content_type='image/gif'
         )
-        cls.following = Follow.objects.create(
-            author=cls.user,
-            user=cls.user1,
-        )
+
         cls.group1 = Group.objects.create(
             title='Тестовая группа1',
             slug='test-slug1',
@@ -222,3 +220,26 @@ class PostPagesTests(TestCase):
         cache.clear()
         response_3 = self.authorized_client.get(reverse('posts:index'))
         self.assertNotEqual(response_2.content, response_3.content)
+
+    def test_authorized_user_follow(self):
+        """Проверка подписки юзера"""
+        Follow.objects.count()
+        response = self.authorized_client1.get(reverse(
+            'posts:profile_follow', args=(self.user,)))
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        self.assertRedirects(response, reverse(
+            'posts:profile', args=(self.user,)))
+        self.assertEqual(Follow.objects.count(), 1)
+        self.assertTrue(
+            Follow.objects.filter(
+                user=self.user1, author=self.user
+            ).exists()
+        )
+
+    def test_guest_user_follow(self):
+        """Проверка невозможности подписки на автора для гостя"""
+        Follow.objects.count()
+        self.guest_client.get(reverse(
+            'posts:profile_follow', args=(self.user,)))
+        self.assertEqual(Follow.objects.count(), 0)
+    
